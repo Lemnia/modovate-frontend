@@ -10,9 +10,7 @@ const games = [
 ];
 
 const GameCarousel = () => {
-  const [position, setPosition] = useState(0);
   const containerRef = useRef(null);
-
   const visibleCount = 4;
   const circleSize = 186;
   const gap = 24;
@@ -33,7 +31,7 @@ const GameCarousel = () => {
       container.style.transition = 'none';
       container.style.transform = `translateX(-${step * currentIndex}px)`;
     }
-  }, []);
+  }, [currentIndex, step]);
 
   const handleNext = () => {
     const container = containerRef.current;
@@ -74,11 +72,9 @@ const GameCarousel = () => {
 
   return (
     <div className="relative text-center py-20 overflow-hidden">
-      {/* Halo Glow Bar - diskretna traka */}
       <div className="absolute top-[52%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[860px] h-[160px] rounded-full bg-cyan-500 opacity-[0.07] blur-[70px] z-0 pointer-events-none" />
 
       <div className="flex items-center justify-center relative z-10">
-        {/* Left arrow */}
         <img
           src="/assets/icons/arrow-left.png"
           alt="Previous"
@@ -86,7 +82,6 @@ const GameCarousel = () => {
           className="w-10 h-10 cursor-pointer absolute left-[100px] top-1/2 transform -translate-y-1/2 z-20"
         />
 
-        {/* Carousel */}
         <div className="overflow-hidden" style={{ width: `${step * visibleCount}px` }}>
           <div
             ref={containerRef}
@@ -111,7 +106,6 @@ const GameCarousel = () => {
           </div>
         </div>
 
-        {/* Right arrow */}
         <img
           src="/assets/icons/arrow-right.png"
           alt="Next"
