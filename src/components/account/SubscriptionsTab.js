@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 const SubscriptionsTab = () => {
@@ -6,18 +6,24 @@ const SubscriptionsTab = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [cancelId, setCancelId] = useState(null); // za modal
 
   const getUserIdFromToken = (token) => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.userId;
-    } catch (err) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+          .join('')
+      );
+      return JSON.parse(jsonPayload).id;
+    } catch (e) {
       return null;
     }
   };
 
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     setLoading(true);
     setError('');
     const userId = getUserIdFromToken(token);
@@ -41,89 +47,61 @@ const SubscriptionsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (token) fetchSubscriptions();
   }, [token]);
 
-  const confirmCancel = async () => {
+  const handleCancel = async (subscriptionId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/subscriptions/${cancelId}/cancel`, {
-        method: 'PATCH',
+      const res = await fetch(`http://localhost:5000/api/subscriptions/${subscriptionId}`, {
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (!res.ok) throw new Error('Failed to cancel subscription');
-
-      setCancelId(null);
-      fetchSubscriptions(); // refreshuj listu
+      fetchSubscriptions();
     } catch (err) {
-      alert('Cancel failed: ' + err.message);
+      setError(err.message);
     }
   };
 
+  useEffect(() => {
+    if (token) fetchSubscriptions();
+  }, [token, fetchSubscriptions]);
+
+  if (loading) {
+    return <div className="text-white mt-4">Loading subscriptions...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 mt-4">{error}</div>;
+  }
+
+  if (subscriptions.length === 0) {
+    return <div className="text-white mt-4">You have no active subscriptions.</div>;
+  }
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-brand-accent">Your Active Subscriptions</h2>
-
-      {loading ? (
-        <p className="text-gray-300">Loading subscriptions...</p>
-      ) : error ? (
-        <p className="text-red-400">{error}</p>
-      ) : subscriptions.length === 0 ? (
-        <p className="text-gray-400">You don’t have any active subscriptions yet.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subscriptions.map((sub, idx) => (
-            <div
-              key={idx}
-              className="bg-black/40 backdrop-blur border border-brand-orange rounded-xl p-5 shadow space-y-2"
-            >
-              <h3 className="text-xl font-semibold text-brand-orange">{sub.game}</h3>
-              <p className="text-sm text-gray-300">Tier: {sub.tier}</p>
-              <p className="text-lg text-brand-light">Subscribed: {new Date(sub.startDate).toLocaleDateString()}</p>
-
-              {sub.status === 'active' ? (
-                <button
-                  onClick={() => setCancelId(sub._id)}
-                  className="mt-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-1.5 px-4 rounded-full"
-                >
-                  Cancel Subscription
-                </button>
-              ) : (
-                <p className="text-red-400 font-semibold">Cancelled</p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Modal za potvrdu */}
-      {cancelId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white text-black p-6 rounded-lg space-y-4 w-full max-w-sm">
-            <h3 className="text-lg font-bold">Confirm Cancellation</h3>
-            <p>Are you sure you want to cancel this subscription?</p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setCancelId(null)}
-                className="bg-gray-300 hover:bg-gray-400 px-4 py-1.5 rounded"
-              >
-                No
-              </button>
-              <button
-                onClick={confirmCancel}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded"
-              >
-                Yes, Cancel
-              </button>
-            </div>
+    <div className="space-y-6 mt-6">
+      {subscriptions.map((sub) => (
+        <div
+          key={sub._id}
+          className="bg-white/5 backdrop-blur-md p-6 rounded-xl border border-brand-accent flex justify-between items-center"
+        >
+          <div>
+            <h3 className="text-xl font-semibold text-white">{sub.game}</h3>
+            <p className="text-gray-300 text-sm">Tier: {sub.tier}</p>
+            <p className="text-gray-400 text-xs mt-1">
+              Subscribed on: {new Date(sub.createdAt).toLocaleDateString()}
+            </p>
           </div>
+          <button
+            onClick={() => handleCancel(sub._id)}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+          >
+            Cancel
+          </button>
         </div>
-      )}
+      ))}
     </div>
   );
 };
