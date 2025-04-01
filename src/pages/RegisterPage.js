@@ -1,124 +1,112 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e) => {
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+    setSuccess('');
+  };
+
+  const // Validation
+handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (!username || !email || !password || !confirm) {
-      setError('All fields are required.');
+    const { username, email, password } = formData;
+
+    if (!username || username.length < 3) {
+      setError('Username must be at least 3 characters.');
+      setLoading(false);
       return;
     }
 
-    if (password !== confirm) {
-      setError('Passwords do not match.');
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email.');
+      setLoading(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        credentials: 'include', // <== omogućava httpOnly cookie
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
       });
 
       if (!res.ok) {
-        const { message } = await res.json();
-        throw new Error(message || 'Registration failed');
+        const data = await res.json();
+        throw new Error(data.message || 'Registration failed');
       }
 
-      setSuccessMessage('🎉 Registration successful! Please confirm your email before logging in.');
-      setError('');
-      setUsername('');
-      setEmail('');
-      setPassword('');
-      setConfirm('');
-
-      // Prebaci na login nakon 4 sekunde
-      setTimeout(() => {
-        navigate('/login');
-      }, 4000);
+      const data = await res.json();
+      setSuccess(data.message || 'Registration successful');
+      // Opciono: preusmerenje
+      // window.location.href = '/login';
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-16 bg-gradient-to-b from-black to-gray-900 text-white flex justify-center items-center">
-      <div className="max-w-md w-full space-y-6 bg-white/10 p-8 rounded-xl shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-brand-accent">Create Account</h2>
+    <div className="register-container">
+      <h2>Register</h2>
+      <form onSubmit={// Validation
+handleSubmit} className="register-form">
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
 
-        {error && (
-          <p className="bg-red-500/20 text-red-400 text-sm px-4 py-2 rounded text-center">
-            {error}
-          </p>
-        )}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
-        {successMessage && (
-          <p className="bg-green-500/20 text-green-300 text-sm px-4 py-2 rounded text-center">
-            {successMessage}
-          </p>
-        )}
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
 
-        <form onSubmit={handleRegister} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full px-4 py-2 rounded-lg bg-white/10 placeholder-gray-400 focus:outline-none"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
 
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full px-4 py-2 rounded-lg bg-white/10 placeholder-gray-400 focus:outline-none"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-2 rounded-lg bg-white/10 placeholder-gray-400 focus:outline-none"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            className="w-full px-4 py-2 rounded-lg bg-white/10 placeholder-gray-400 focus:outline-none"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-brand-accent hover:bg-brand-light text-white font-semibold py-2 rounded-lg transition"
-          >
-            Register
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-400">
-          Already have an account?{' '}
-          <span
-            className="text-brand-orange hover:underline cursor-pointer"
-            onClick={() => navigate('/login')}
-          >
-            Login here
-          </span>
-        </p>
-      </div>
+      {error && <p className="error-msg">{error}</p>}
+      {success && <p className="success-msg">{success}</p>}
     </div>
   );
 };

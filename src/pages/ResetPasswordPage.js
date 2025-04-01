@@ -1,40 +1,79 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ResetPasswordPage = () => {
-  const [newPass, setNewPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { token } = useParams();
 
-  const handleReset = (e) => {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
 
-    if (!newPass || !confirmPass) {
-      setError('Fill in both fields.');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
-    if (newPass !== confirmPass) {
-      setError('Passwords do not match.');
-      return;
-    }
+    try {
+      const res = await fetch(`/api/auth/reset-password/${token}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
 
-    console.log('Password changed to:', newPass);
-    navigate('/login');
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Reset failed');
+      }
+
+      setSuccess('Password reset successfully. You can now log in.');
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center px-4 py-20">
-      <div className="w-full max-w-md bg-[#111418] rounded-lg shadow-lg p-8 border border-brand-orange">
-        <h2 className="text-3xl font-extrabold text-brand-accent text-center mb-6">Set New Password</h2>
-        {error && <div className="bg-red-600 text-white px-4 py-2 mb-4 rounded text-sm">{error}</div>}
-        <form onSubmit={handleReset} className="space-y-5">
-          <input type="password" placeholder="New Password" value={newPass} onChange={(e) => setNewPass(e.target.value)} className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent" />
-          <input type="password" placeholder="Confirm New Password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent" />
-          <button type="submit" className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded">Change Password</button>
-        </form>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white/5 p-8 rounded-xl shadow space-y-4"
+      >
+        <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
+        <input
+          type="password"
+          placeholder="New Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-2 bg-black bg-opacity-20 rounded"
+        />
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          className="w-full p-2 bg-black bg-opacity-20 rounded"
+        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {success && <p className="text-green-400 text-sm">{success}</p>}
+        <button
+          type="submit"
+          className="w-full p-2 bg-brand-orange rounded hover:bg-opacity-80 transition"
+        >
+          Reset Password
+        </button>
+      </form>
     </div>
   );
 };

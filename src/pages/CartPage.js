@@ -1,84 +1,59 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
-  const navigate = useNavigate();
 
-  const getTotal = () => {
-    return cartItems
-      .reduce((acc, item) => {
-        const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, ''));
-        return acc + numericPrice;
-      }, 0)
-      .toFixed(2);
-  };
+  const totalPrice = cartItems.reduce((total, item) => {
+    const price = parseFloat(item.price.replace('$', '').replace('/mo', ''));
+    return total + price;
+  }, 0);
 
   return (
-    <div className="min-h-screen bg-[#0b0d10] text-white py-20 px-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Back to subscriptions */}
-        <Link
-          to="/subscriptions"
-          className="inline-block mb-6 text-brand-accent hover:underline hover:text-brand-light transition"
-        >
-          ← Back to Subscriptions
-        </Link>
+    <div className="max-w-4xl mx-auto py-12 px-6 text-white">
+      <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
 
-        {/* Title */}
-        <h2 className="text-4xl font-bold mb-10 text-center text-brand-orange">Your Cart</h2>
-
-        {cartItems.length === 0 ? (
-          <p className="text-center text-gray-400 text-lg">Your cart is currently empty.</p>
-        ) : (
-          <>
-            {/* Items */}
-            <div className="space-y-6 mb-10">
-              {cartItems.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex justify-between items-center bg-black/40 border border-brand-orange rounded-xl p-5"
-                >
-                  <div>
-                    <h3 className="text-xl font-semibold text-brand-orange">{item.name}</h3>
-                    <p className="text-sm text-gray-300">{item.tierId}</p>
-                    <p className="text-lg font-medium text-brand-light mt-1">{item.price}</p>
-                  </div>
-                  <button
-                    onClick={() => removeFromCart(item.tierId)}
-                    className="text-sm bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-white transition"
-                  >
-                    Remove
-                  </button>
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty. <Link to="/subscription" className="text-brand-accent underline">Go to Subscriptions</Link></p>
+      ) : (
+        <>
+          <ul className="mb-6 space-y-4">
+            {cartItems.map((item, index) => (
+              <li key={index} className="bg-white bg-opacity-5 p-4 rounded-xl shadow flex justify-between items-center">
+                <div>
+                  <p className="font-semibold">{item.game} – {item.name} Tier</p>
+                  <p>{item.price}</p>
                 </div>
-              ))}
-            </div>
+                <button
+                  onClick={() => removeFromCart(index)}
+                  className="text-red-500 hover:text-red-400"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
 
-            {/* Total & actions */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <h3 className="text-2xl font-bold text-white">
-                Total:{' '}
-                <span className="text-brand-accent">${getTotal()}</span>
-              </h3>
-              <div className="flex gap-4">
-                <button
-                  onClick={clearCart}
-                  className="bg-gray-700 hover:bg-gray-800 px-5 py-2 rounded-full text-white transition"
-                >
-                  Clear Cart
-                </button>
-                <button
-                  onClick={() => navigate('/checkout')}
-                  className="bg-brand-accent hover:bg-[#00a3a3] px-6 py-2 rounded-full text-white font-semibold transition"
-                >
-                  Proceed to Checkout
-                </button>
-              </div>
+          <div className="flex justify-between items-center">
+            <p className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</p>
+            <div className="flex gap-4">
+              <button
+                onClick={clearCart}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition"
+              >
+                Clear Cart
+              </button>
+              <Link
+                to="/checkout"
+                className="px-6 py-2 bg-brand-orange text-white rounded-xl hover:bg-opacity-80 transition"
+              >
+                Proceed to Checkout
+              </Link>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

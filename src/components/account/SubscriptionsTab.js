@@ -1,45 +1,25 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext';
 
 const SubscriptionsTab = () => {
-  const { token } = useAuth();
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const getUserIdFromToken = (token) => {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-          .join('')
-      );
-      return JSON.parse(jsonPayload).id;
-    } catch (e) {
-      return null;
-    }
-  };
-
   const fetchSubscriptions = useCallback(async () => {
     setLoading(true);
     setError('');
-    const userId = getUserIdFromToken(token);
-    if (!userId) {
-      setError('Invalid token');
-      setLoading(false);
-      return;
-    }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/subscriptions/user/${userId}`, {
+      const res = await fetch('/api/subscriptions/user/me', {
+        method: 'GET',
+        credentials: 'include', // Neophodno za httpOnly cookie
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
+
       if (!res.ok) throw new Error('Failed to fetch subscriptions');
+
       const data = await res.json();
       setSubscriptions(data);
     } catch (err) {
@@ -47,17 +27,21 @@ const SubscriptionsTab = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   const handleCancel = async (subscriptionId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/subscriptions/${subscriptionId}`, {
-        method: 'DELETE',
+      const res = await fetch(`/api/subscriptions/${subscriptionId}/cancel`, {
+        method: 'PATCH',
+        credentials: 'include',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
+
       if (!res.ok) throw new Error('Failed to cancel subscription');
+
+      // Refresh list
       fetchSubscriptions();
     } catch (err) {
       setError(err.message);
@@ -65,43 +49,38 @@ const SubscriptionsTab = () => {
   };
 
   useEffect(() => {
-    if (token) fetchSubscriptions();
-  }, [token, fetchSubscriptions]);
-
-  if (loading) {
-    return <div className="text-white mt-4">Loading subscriptions...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 mt-4">{error}</div>;
-  }
-
-  if (subscriptions.length === 0) {
-    return <div className="text-white mt-4">You have no active subscriptions.</div>;
-  }
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   return (
-    <div className="space-y-6 mt-6">
-      {subscriptions.map((sub) => (
-        <div
-          key={sub._id}
-          className="bg-white/5 backdrop-blur-md p-6 rounded-xl border border-brand-accent flex justify-between items-center"
-        >
-          <div>
-            <h3 className="text-xl font-semibold text-white">{sub.game}</h3>
-            <p className="text-gray-300 text-sm">Tier: {sub.tier}</p>
-            <p className="text-gray-400 text-xs mt-1">
-              Subscribed on: {new Date(sub.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-          <button
-            onClick={() => handleCancel(sub._id)}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
-          >
-            Cancel
-          </button>
-        </div>
-      ))}
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Your Subscriptions</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : subscriptions.length === 0 ? (
+        <p>You have no active subscriptions.</p>
+      ) : (
+        <ul className="space-y-4">
+          {subscriptions.map((sub) => (
+            <li key={sub._id} className="bg-white bg-opacity-5 p-4 rounded-xl shadow">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-bold">{sub.game}</p>
+                  <p className="text-sm text-gray-300">Tier: {sub.tier}</p>
+                </div>
+                <button
+                  onClick={() => handleCancel(sub._id)}
+                  className="px-4 py-2 bg-brand-orange text-white rounded-lg hover:bg-opacity-80 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

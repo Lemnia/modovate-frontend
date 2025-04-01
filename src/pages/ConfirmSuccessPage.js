@@ -1,22 +1,20 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const ConfirmSuccessPage = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white flex flex-col justify-center items-center pt-28 px-6">
-      <div className="bg-white/10 p-10 rounded-xl text-center shadow-lg max-w-md">
-        <h1 className="text-3xl font-bold text-brand-accent mb-4">✅ Email Confirmed</h1>
+    <div className="min-h-screen flex items-center justify-center text-white px-6">
+      <div className="max-w-md w-full text-center">
+        <h1 className="text-4xl font-bold mb-4">Subscription Confirmed!</h1>
         <p className="text-gray-300 mb-6">
-          Your email has been successfully confirmed. You can now log in to your account!
+          Thank you for confirming your subscription. You now have full access to all premium content.
         </p>
-        <button
-          onClick={() => navigate('/login')}
-          className="bg-brand-accent hover:bg-brand-light text-white font-semibold px-6 py-2 rounded-full transition"
+        <Link
+          to="/account"
+          className="inline-block px-6 py-3 bg-brand-orange text-white rounded-xl hover:bg-opacity-80 transition"
         >
-          Go to Login
-        </button>
+          Go to Account
+        </Link>
       </div>
     </div>
   );

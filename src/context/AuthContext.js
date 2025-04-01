@@ -4,30 +4,42 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('modovate_token');
-    if (storedToken) {
-      setToken(storedToken);
-      setIsLoggedIn(true);
-    }
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/status', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        const data = await res.json();
+        setIsLoggedIn(data.isLoggedIn);
+      } catch (err) {
+        setIsLoggedIn(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  const login = (newToken) => {
-    localStorage.setItem('modovate_token', newToken);
-    setToken(newToken);
-    setIsLoggedIn(true);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('modovate_token');
-    setToken(null);
-    setIsLoggedIn(false);
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (err) {
+      console.error('Logout failed');
+    } finally {
+      setIsLoggedIn(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

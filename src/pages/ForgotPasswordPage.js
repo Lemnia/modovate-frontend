@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { credentials: 'include', useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const ForgotPasswordPage = () => {
@@ -6,7 +6,8 @@ const ForgotPasswordPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const // Validation
+handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
@@ -46,7 +47,8 @@ const ForgotPasswordPage = () => {
                 {error}
               </div>
             )}
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={// Validation
+handleSubmit} className="space-y-5">
               <input
                 type="email"
                 placeholder="Enter your email"
