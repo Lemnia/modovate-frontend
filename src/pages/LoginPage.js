@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,8 +21,7 @@ const LoginPage = () => {
     setSuccess('');
   };
 
-  const // Validation
-handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -37,24 +40,29 @@ handleSubmit = async (e) => {
     }
 
     try {
-      const res = await fetch('/api/auth/login', {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/auth/status`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: 'POST',
-        credentials: 'include', // <== Neophodno za httpOnly cookie
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.message || 'Login failed');
       }
 
-      const data = await res.json();
       setSuccess(data.message || 'Login successful');
-      // Opciono: redirect after login
-      // window.location.href = '/account';
+      login();
+      setTimeout(() => navigate('/account'), 1000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -63,10 +71,9 @@ handleSubmit = async (e) => {
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={// Validation
-handleSubmit} className="login-form">
+    <div className="min-h-screen flex items-center justify-center px-4 text-white">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 bg-white/5 p-8 rounded-xl shadow">
+        <h1 className="text-2xl font-bold mb-4">Login</h1>
         <input
           type="email"
           name="email"
@@ -74,8 +81,8 @@ handleSubmit} className="login-form">
           value={formData.email}
           onChange={handleChange}
           required
+          className="w-full p-2 bg-black bg-opacity-20 rounded"
         />
-
         <input
           type="password"
           name="password"
@@ -83,15 +90,14 @@ handleSubmit} className="login-form">
           value={formData.password}
           onChange={handleChange}
           required
+          className="w-full p-2 bg-black bg-opacity-20 rounded"
         />
-
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="w-full p-2 bg-brand-orange rounded hover:bg-opacity-80 transition">
           {loading ? 'Logging in...' : 'Login'}
         </button>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {success && <p className="text-green-400 text-sm">{success}</p>}
       </form>
-
-      {error && <p className="error-msg">{error}</p>}
-      {success && <p className="success-msg">{success}</p>}
     </div>
   );
 };
