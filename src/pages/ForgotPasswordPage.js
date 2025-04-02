@@ -1,78 +1,72 @@
-import React, { credentials: 'include', useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const // Validation
-handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!email) {
-      setError('Please enter your email.');
-      return;
-    }
+    setLoading(true);
+    setMessage('');
+    setError('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      await fetch(`${process.env.REACT_APP_API_URL}/api/auth/status`, {
+        method: 'GET',
+        credentials: 'include'
       });
 
-      if (!res.ok) throw new Error('Failed to send reset link.');
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
 
-      setSubmitted(true);
-      setError('');
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to send reset email');
+      }
+
+      setMessage(data.message || 'Reset link sent. Check your email.');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center px-4 py-20">
-      <div className="w-full max-w-md bg-[#111418] rounded-lg shadow-lg p-8 border border-brand-orange">
-        <h2 className="text-3xl font-extrabold text-brand-accent text-center mb-6">Reset Password</h2>
-
-        {submitted ? (
-          <div className="text-green-400 bg-green-600/20 px-4 py-2 text-sm rounded text-center">
-            If an account with that email exists, a reset link has been sent.
-          </div>
-        ) : (
-          <>
-            {error && (
-              <div className="bg-red-500/20 text-red-400 text-sm px-4 py-2 rounded text-center mb-4">
-                {error}
-              </div>
-            )}
-            <form onSubmit={// Validation
-handleSubmit} className="space-y-5">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
-              />
-              <button
-                type="submit"
-                className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded"
-              >
-                Send Reset Link
-              </button>
-            </form>
-          </>
-        )}
-
-        <div className="text-sm text-center text-gray-400 mt-6">
-          Back to{' '}
-          <Link to="/login" className="text-brand-accent hover:underline">
-            Login
-          </Link>
+    <div className="min-h-screen flex items-center justify-center px-4 text-white">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white/5 p-8 rounded-xl shadow space-y-4">
+        <h1 className="text-2xl font-bold mb-4">Forgot Password</h1>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full p-2 bg-black bg-opacity-20 rounded"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full p-2 bg-brand-orange rounded hover:bg-opacity-80 transition"
+        >
+          {loading ? 'Sending...' : 'Send Reset Link'}
+        </button>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {message && <p className="text-green-400 text-sm">{message}</p>}
+        <div className="text-sm mt-2">
+          <Link to="/login" className="text-brand-light hover:underline">Back to Login</Link>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
