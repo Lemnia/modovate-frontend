@@ -18,23 +18,21 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full fixed top-0 left-0 flex items-center justify-between px-14 py-3 z-50 bg-black/60 backdrop-blur-sm">
+    <header className="w-full fixed top-0 left-0 flex items-center justify-between px-4 sm:px-8 lg:px-14 py-3 z-50 bg-black/60 backdrop-blur-sm">
       <div className="flex items-center h-16">
         <Link to="/">
           <img
             src="/assets/logo/Logotip_transparent_text.png"
             alt="Modovate Studio Logo"
-            className="h-20 w-20 object-contain transition-transform hover:scale-105"
+            className="h-16 sm:h-20 w-auto object-contain transition-transform hover:scale-105"
           />
         </Link>
       </div>
 
-      <div className="flex items-center space-x-10">
-        <nav className="flex space-x-8 text-white text-lg font-medium">
+      <div className="flex items-center space-x-4 sm:space-x-6 lg:space-x-10">
+        <nav className="hidden md:flex space-x-4 sm:space-x-6 lg:space-x-8 text-white text-sm sm:text-base lg:text-lg font-medium">
           <Link to="/" className="hover:text-gray-300 transition">Home</Link>
           <Link to="/subscriptions" className="hover:text-gray-300 transition">Subscriptions</Link>
-
-          {/* My Account */}
           <a
             href="/account"
             onClick={handleAccountClick}
@@ -42,14 +40,12 @@ const Header = () => {
           >
             My Account
           </a>
-
           <Link to="/about" className="hover:text-gray-300 transition">About</Link>
         </nav>
 
-        {/* Cart Button */}
         <Link
           to="/cart"
-          className="relative bg-brand-accent hover:bg-[#00a3a3] text-white font-semibold px-5 py-2 rounded-full transition"
+          className="relative bg-brand-accent hover:bg-[#00a3a3] text-white font-semibold px-4 sm:px-5 py-2 rounded-full transition"
         >
           Cart
           {cartItems.length > 0 && (
@@ -59,18 +55,17 @@ const Header = () => {
           )}
         </Link>
 
-        {/* Login / Logout */}
         {!isLoggedIn ? (
           <Link
             to="/login"
-            className="bg-brand-orange hover:bg-orange-600 text-white font-semibold px-5 py-2 rounded-full transition"
+            className="bg-brand-orange hover:bg-orange-600 text-white font-semibold px-4 sm:px-5 py-2 rounded-full transition"
           >
             Login
           </Link>
         ) : (
           <button
             onClick={logout}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-full transition"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 sm:px-5 py-2 rounded-full transition"
           >
             Logout
           </button>

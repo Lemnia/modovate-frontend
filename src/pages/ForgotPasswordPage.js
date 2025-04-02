@@ -43,7 +43,7 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 text-white">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-14 text-white">
       <form onSubmit={handleSubmit} className="w-full max-w-md bg-white/5 p-8 rounded-xl shadow space-y-4">
         <h1 className="text-2xl font-bold mb-4">Forgot Password</h1>
         <input

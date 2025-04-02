@@ -3,17 +3,15 @@ import { Link } from 'react-router-dom';
 
 const ConfirmSuccessPage = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center text-white px-6">
-      <div className="max-w-md w-full text-center">
-        <h1 className="text-4xl font-bold mb-4">Subscription Confirmed!</h1>
-        <p className="text-gray-300 mb-6">
-          Thank you for confirming your subscription. You now have full access to all premium content.
-        </p>
+    <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-14 bg-gradient-to-b from-black to-gray-900 text-white">
+      <div className="max-w-md space-y-6">
+        <h1 className="text-4xl font-bold text-brand-accent">Thank You!</h1>
+        <p className="text-lg text-gray-300">Your order has been confirmed. A confirmation email has been sent to you.</p>
         <Link
-          to="/account"
-          className="inline-block px-6 py-3 bg-brand-orange text-white rounded-xl hover:bg-opacity-80 transition"
+          to="/"
+          className="inline-block mt-4 bg-brand-orange hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded transition"
         >
-          Go to Account
+          Back to Home
         </Link>
       </div>
     </div>

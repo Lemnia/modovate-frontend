@@ -1,78 +1,64 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ResetPasswordPage = () => {
-  const navigate = useNavigate();
-  const { token } = useParams();
-
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const token = new URLSearchParams(location.search).get('token');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage('');
     setError('');
-    setSuccess('');
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
 
     try {
-      const res = await fetch(`/api/auth/reset-password/${token}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ token, password })
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Reset failed');
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Reset failed');
-      }
-
-      setSuccess('Password reset successfully. You can now log in.');
-      setTimeout(() => navigate('/login'), 3000);
+      setMessage(data.message || 'Password reset successfully');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white/5 p-8 rounded-xl shadow space-y-4"
-      >
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-14 text-white">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white/5 p-8 rounded-xl shadow space-y-4">
         <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
         <input
           type="password"
-          placeholder="New Password"
+          placeholder="New password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           className="w-full p-2 bg-black bg-opacity-20 rounded"
         />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          className="w-full p-2 bg-black bg-opacity-20 rounded"
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {success && <p className="text-green-400 text-sm">{success}</p>}
         <button
           type="submit"
+          disabled={loading}
           className="w-full p-2 bg-brand-orange rounded hover:bg-opacity-80 transition"
         >
-          Reset Password
+          {loading ? 'Resetting...' : 'Reset Password'}
         </button>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {message && <p className="text-green-400 text-sm">{message}</p>}
       </form>
     </div>
   );

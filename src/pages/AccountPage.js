@@ -19,7 +19,6 @@ const AccountPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch user avatar from backend
     const fetchAvatar = async () => {
       try {
         const res = await fetch('/api/users/avatar', {
@@ -70,9 +69,9 @@ const AccountPage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-16 bg-gradient-to-b from-black to-gray-900 text-white">
-      <div className="max-w-7xl mx-auto flex gap-8">
-        <aside className="w-[240px] sticky top-28 h-fit backdrop-blur-md bg-white/5 rounded-xl p-4 space-y-6">
+    <div className="min-h-screen pt-28 px-4 sm:px-6 md:px-8 pb-16 bg-gradient-to-b from-black to-gray-900 text-white">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+        <aside className="w-full lg:w-[260px] sticky top-28 h-fit backdrop-blur-md bg-white/5 rounded-xl p-4 space-y-6">
           <div className="flex flex-col items-center text-center">
             <img
               src={avatarPreview || customAvatar || selectedAvatar}

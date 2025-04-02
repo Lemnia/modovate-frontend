@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -71,7 +71,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 text-white">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-14 text-white">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 bg-white/5 p-8 rounded-xl shadow">
         <h1 className="text-2xl font-bold mb-4">Login</h1>
         <input
@@ -97,17 +97,6 @@ const LoginPage = () => {
         </button>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {success && <p className="text-green-400 text-sm">{success}</p>}
-        <div className="text-sm mt-2 text-center">
-          Don’t have an account?{' '}
-          <Link to="/register" className="text-brand-light hover:underline">
-            Register here
-          </Link>
-        </div>
-        <div className="text-sm mt-1 text-center">
-          <Link to="/forgot-password" className="text-brand-light hover:underline">
-            Forgot your password? Reset it
-          </Link>
-        </div>
       </form>
     </div>
   );
