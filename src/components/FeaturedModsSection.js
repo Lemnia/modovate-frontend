@@ -1,61 +1,33 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 const FeaturedModsSection = () => {
-  const cards = [
-    {
-      title: 'Mod Title',
-      description: 'A short description of this mod. Spice up your gameplay!',
-      image: '/assets/featured/featured1.png',
-      slug: 'mod-title',
-    },
-    {
-      title: 'Another Mod',
-      description: 'Brief info about this awesome mod.',
-      image: '/assets/featured/featured2.png',
-      slug: 'another-mod',
-    },
-    {
-      title: 'Ultimate Pack',
-      description: 'Get the best features in one bundle!',
-      image: '/assets/featured/featured3.png',
-      slug: 'ultimate-pack',
-    },
+  const mods = [
+    { title: 'Elegant Evening Dress', image: '/assets/mods/mod1.png' },
+    { title: 'Neon Graffiti Pants', image: '/assets/mods/mod2.png' },
+    { title: 'Cyberpunk Jacket', image: '/assets/mods/mod3.png' },
   ];
 
   return (
-    <section className="bg-[#0b0d10] py-16 px-6">
+    <div className="py-16 px-4 sm:px-6 lg:px-8 bg-black text-white">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-extrabold text-obcen mb-10 text-center tracking-wide">
-          Featured Mods
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {cards.map((mod, idx) => (
-            <Link
-              to={`/mod/${mod.slug}`}
-              key={idx}
-              className="bg-darkis border border-obaura rounded-xl overflow-hidden shadow-deep hover:shadow-[0_0_12px_#F47800] transition duration-300 group"
+        <h2 className="text-3xl font-bold mb-10 text-center">Featured Mods</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {mods.map((mod, index) => (
+            <div
+              key={index}
+              className="bg-gradient-to-br from-brand-orange to-brand-accent rounded-2xl p-4 shadow-lg hover:scale-105 transition transform duration-300"
             >
               <img
                 src={mod.image}
                 alt={mod.title}
-                className="w-full h-48 object-cover group-hover:brightness-105"
+                className="w-full h-64 object-cover rounded-xl border-4 border-white/10"
               />
-              <div className="p-5">
-                <h3 className="text-xl font-semibold text-obcen mb-2">
-                  {mod.title}
-                </h3>
-                <p className="text-sm text-gray-400 mb-4">{mod.description}</p>
-                <span className="bg-obaura hover:bg-orange-600 text-obcen font-medium px-4 py-2 rounded-full transition inline-block text-center">
-                  Learn More
-                </span>
-              </div>
-            </Link>
+              <h3 className="mt-4 text-xl font-semibold text-center">{mod.title}</h3>
+            </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
