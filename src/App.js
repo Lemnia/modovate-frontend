@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ScrollRestorationFix from './components/ScrollRestorationFix';
-import ScrollManager from './components/ScrollManager'; // ✅ NOVO
+import ScrollManager from './components/ScrollManager'; // ✅ RADI PRI PROMENI RUTE
 import Home from './pages/Home';
 import SubscriptionPage from './pages/SubscriptionPage';
 import CartPage from './pages/CartPage';
@@ -18,9 +18,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <ScrollRestorationFix />
-      <ScrollManager /> {/* ✅ RADI PRI PROMENI RUTE */}
+      <ScrollManager />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -35,9 +35,9 @@ function App() {
           <Route path="reset-password" element={<ResetPasswordPage />} />
           <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
           <Route path="confirm-success" element={<ProtectedRoute><ConfirmSuccessPage /></ProtectedRoute>} />
-		</Route>
+        </Route>
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 
