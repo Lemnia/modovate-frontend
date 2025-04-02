@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo/Logotip_transparent_notext.png';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
@@ -20,7 +19,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 w-full bg-black bg-opacity-70 backdrop-blur-md z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-14 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <img src={logo} alt="Modovate Studio" className="h-10" />
+          <img src="/assets/logo/Logotip_transparent_notext.png" alt="Modovate Studio" className="h-10" />
         </Link>
         <nav className="flex items-center space-x-6">
           <Link to="/" className="hover:text-gray-300 transition">
