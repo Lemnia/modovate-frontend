@@ -1,7 +1,4 @@
 import React from 'react';
-import mod1 from '/public/assets/mods/mod1.png';
-import mod2 from '/public/assets/mods/mod2.png';
-import mod3 from '/public/assets/mods/mod3.png';
 
 const ModsShowcaseSection = () => {
   return (
@@ -17,9 +14,9 @@ const ModsShowcaseSection = () => {
         </div>
 
         <div className="flex justify-center md:w-1/2 flex-wrap gap-4">
-          <img src={mod1} alt="Mod 1" className="w-[160px] h-[120px] rounded-xl object-cover" />
-          <img src={mod2} alt="Mod 2" className="w-[160px] h-[120px] rounded-xl object-cover" />
-          <img src={mod3} alt="Mod 3" className="w-[160px] h-[120px] rounded-xl object-cover" />
+          <img src="/assets/mods/mod1.png" alt="Mod 1" className="w-[160px] h-[120px] rounded-xl object-cover" />
+          <img src="/assets/mods/mod2.png" alt="Mod 2" className="w-[160px] h-[120px] rounded-xl object-cover" />
+          <img src="/assets/mods/mod3.png" alt="Mod 3" className="w-[160px] h-[120px] rounded-xl object-cover" />
         </div>
       </div>
     </section>
