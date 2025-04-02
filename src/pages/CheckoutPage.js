@@ -1,10 +1,35 @@
+// CheckoutPage.js
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const CheckoutPage = () => {
   const { cartItems } = useCart();
   const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+
+  const handleCheckout = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          priceId: 'bundle_ultimate', // ovo možeš zameniti prema sadržaju korpe
+          userId: 'dummy_user_123'
+        })
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Checkout session error.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Something went wrong');
+    }
+  };
 
   return (
     <div className="min-h-screen pt-28 px-4 sm:px-6 lg:px-14 pb-16 bg-gradient-to-b from-black to-gray-900 text-white">
@@ -29,13 +54,13 @@ const CheckoutPage = () => {
 
         <div className="bg-white/10 rounded-xl p-6 shadow space-y-4">
           <h2 className="text-xl font-semibold">Payment Info</h2>
-          <p className="text-sm text-gray-400">This is a demo checkout. Payment processing is not enabled.</p>
-          <Link
-            to="/confirm"
+          <p className="text-sm text-gray-400">You will be redirected to Stripe for secure payment.</p>
+          <button
+            onClick={handleCheckout}
             className="inline-block bg-brand-accent hover:bg-teal-500 text-white font-semibold px-6 py-2 rounded transition"
           >
-            Confirm Order
-          </Link>
+            Proceed to Payment
+          </button>
         </div>
       </div>
     </div>
