@@ -15,7 +15,6 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import AccountPage from './pages/AccountPage';
 import ConfirmSuccessPage from './pages/ConfirmSuccessPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import MySubscriptions from './pages/MySubscriptions';
 
 function App() {
   return (
@@ -36,7 +35,6 @@ function App() {
           <Route path="reset-password" element={<ResetPasswordPage />} />
           <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
           <Route path="confirm-success" element={<ProtectedRoute><ConfirmSuccessPage /></ProtectedRoute>} />
-		  <Route path="/my-subscriptions" element={<MySubscriptions />} />
 		</Route>
       </Routes>
     </BrowserRouter>
