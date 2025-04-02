@@ -98,9 +98,14 @@ const LoginPage = () => {
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {success && <p className="text-green-400 text-sm">{success}</p>}
         <div className="text-sm mt-2 text-center">
-          Nemate nalog?{' '}
+          Don’t have an account?{' '}
           <Link to="/register" className="text-brand-light hover:underline">
-            Registrujte se
+            Register here
+          </Link>
+        </div>
+        <div className="text-sm mt-1 text-center">
+          <Link to="/forgot-password" className="text-brand-light hover:underline">
+            Forgot your password? Reset it
           </Link>
         </div>
       </form>
