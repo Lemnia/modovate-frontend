@@ -71,9 +71,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-14 text-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 bg-white/5 p-8 rounded-xl shadow">
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
+    <div className="login-container">
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit} className="login-form">
         <input
           type="email"
           name="email"
@@ -81,8 +81,8 @@ const LoginPage = () => {
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full p-2 bg-black bg-opacity-20 rounded"
         />
+
         <input
           type="password"
           name="password"
@@ -90,14 +90,15 @@ const LoginPage = () => {
           value={formData.password}
           onChange={handleChange}
           required
-          className="w-full p-2 bg-black bg-opacity-20 rounded"
         />
-        <button type="submit" disabled={loading} className="w-full p-2 bg-brand-orange rounded hover:bg-opacity-80 transition">
+
+        <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {success && <p className="text-green-400 text-sm">{success}</p>}
       </form>
+
+      {error && <p className="error-msg">{error}</p>}
+      {success && <p className="success-msg">{success}</p>}
     </div>
   );
 };
