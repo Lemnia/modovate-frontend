@@ -5,6 +5,11 @@
 [build.environment]
   CI = "false"
 
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
 [[redirects]]
   from = "/api/*"
   to = "https://modovate-backend.onrender.com/api/:splat"
