@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkLoginStatus = async () => {
     try {
-      const res = await fetch('https://modovate-backend.onrender.com/api/auth/status', {
+      const res = await fetch('/api/auth/status', {
         credentials: 'include',
       });
       const data = await res.json();
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCsrfToken = async () => {
     try {
-      await fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
+      await fetch('/api/auth/csrf-token', {
         credentials: 'include',
       });
     } catch (err) {
