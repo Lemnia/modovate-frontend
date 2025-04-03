@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
-}
-
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -14,11 +9,24 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  // 🔐 Fetch CSRF token čim se stranica učita
+  // 👉 CSRF token koji čuvamo direktno iz odgovora
+  const [csrfToken, setCsrfToken] = useState('');
+
   useEffect(() => {
-    fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
-      credentials: 'include',
-    });
+    const fetchCsrfToken = async () => {
+      try {
+        const res = await fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
+          credentials: 'include',
+        });
+        const data = await res.json();
+        const match = document.cookie.match(new RegExp('(^| )XSRF-TOKEN=([^;]+)'));
+        if (match) setCsrfToken(match[2]);
+      } catch (err) {
+        console.error('Failed to fetch CSRF token:', err);
+      }
+    };
+
+    fetchCsrfToken();
   }, []);
 
   const handleRegister = async (e) => {
@@ -37,7 +45,7 @@ const RegisterPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+          'X-XSRF-TOKEN': csrfToken,
         },
         credentials: 'include',
         body: JSON.stringify({ username, email, password }),
@@ -88,7 +96,10 @@ const RegisterPage = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
           />
-          <button type="submit" className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded">
+          <button
+            type="submit"
+            className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded"
+          >
             Register
           </button>
         </form>
