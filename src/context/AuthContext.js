@@ -1,53 +1,42 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const login = async (email, password) => {
+  const checkLoginStatus = async () => {
     try {
-      const res = await fetch('https://modovate-backend.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('https://modovate-backend.onrender.com/api/auth/status', {
         credentials: 'include',
-        body: JSON.stringify({ email, password })
       });
-
-      if (!res.ok) throw new Error('Login failed');
-      setIsAuthenticated(true);
-      return true;
+      const data = await res.json();
+      setIsAuthenticated(data.isLoggedIn);
     } catch (err) {
-      return false;
+      setIsAuthenticated(false);
     }
   };
 
-  const register = async (email, password) => {
+  const fetchCsrfToken = async () => {
     try {
-      const res = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
         credentials: 'include',
-        body: JSON.stringify({ email, password })
       });
-
-      if (!res.ok) throw new Error('Registration failed');
-      return true;
     } catch (err) {
-      return false;
+      console.error('Failed to fetch CSRF token:', err);
     }
   };
 
-  const logout = async () => {
-    await fetch('https://modovate-backend.onrender.com/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include'
-    });
-    setIsAuthenticated(false);
-  };
+  useEffect(() => {
+    checkLoginStatus();
+    fetchCsrfToken();
+  }, []);
+
+  const login = () => setIsAuthenticated(true);
+  const logout = () => setIsAuthenticated(false);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

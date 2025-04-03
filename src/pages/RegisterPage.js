@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function getCookie(name) {
@@ -14,11 +14,11 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
+  const fetchCsrfToken = async () => {
+    await fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
       credentials: 'include',
     });
-  }, []);
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -32,6 +32,8 @@ const RegisterPage = () => {
     }
 
     try {
+      await fetchCsrfToken(); // Get CSRF token first
+
       const res = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
