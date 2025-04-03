@@ -1,3 +1,4 @@
+// src/pages/RegisterPage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -15,7 +16,8 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('https://modovate-backend.onrender.com/api/auth/csrf-token', {
+    // Fetch the CSRF token via the proxy (relative URL)
+    fetch('/api/auth/csrf-token', {
       credentials: 'include'
     });
   }, []);
@@ -35,7 +37,7 @@ const RegisterPage = () => {
       const csrfToken = getCookie('XSRF-TOKEN');
       if (!csrfToken) throw new Error('CSRF token not found. Please refresh the page and try again.');
 
-      const res = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

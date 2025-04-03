@@ -1,7 +1,8 @@
+// src/App.js
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ScrollRestorationFix from './components/ScrollRestorationFix';
-import ScrollManager from './components/ScrollManager'; // ✅ RADI PRI PROMENI RUTE
+import ScrollManager from './components/ScrollManager';
 import Home from './pages/Home';
 import SubscriptionPage from './pages/SubscriptionPage';
 import CartPage from './pages/CartPage';
