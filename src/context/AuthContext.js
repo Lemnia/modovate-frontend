@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCsrfToken = async () => {
     try {
+      // Use relative URL so that the request goes through Netlify's redirect
       await fetch('/api/auth/csrf-token', {
         credentials: 'include',
       });

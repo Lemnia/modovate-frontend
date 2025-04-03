@@ -15,7 +15,7 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Use a relative URL so the Netlify redirect sends the request to your backend.
+    // Ensure the request is made via the relative URL so that Netlify rewrites it
     fetch('/api/auth/csrf-token', {
       credentials: 'include'
     });
