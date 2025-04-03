@@ -8,39 +8,47 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen pt-28 px-4 sm:px-6 lg:px-14 pb-16 bg-gradient-to-b from-black to-gray-900 text-white">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold mb-4">Your Cart</h1>
+      <div className="max-w-5xl mx-auto space-y-8">
+        <h1 className="text-4xl font-bold mb-6 text-brand-accent text-center">Your Cart</h1>
+
         {cartItems.length === 0 ? (
-          <p>Your cart is empty.</p>
+          <div className="text-center text-gray-400 text-lg">
+            Your cart is currently empty.
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {cartItems.map((item, index) => (
-              <div key={index} className="flex flex-col sm:flex-row items-center justify-between bg-white/10 rounded-xl p-4 shadow">
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row items-center justify-between bg-white/10 rounded-xl p-6 shadow-lg"
+              >
                 <div className="flex-1 text-center sm:text-left">
-                  <h2 className="text-xl font-semibold">{item.name}</h2>
-                  <p className="text-gray-400">${item.price.toFixed(2)}</p>
+                  <h2 className="text-2xl font-semibold">{item.name}</h2>
+                  <p className="text-gray-400 text-lg">${item.price.toFixed(2)}</p>
                 </div>
                 <button
                   onClick={() => removeFromCart(item)}
-                  className="mt-2 sm:mt-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                  className="mt-4 sm:mt-0 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded transition font-medium"
                 >
                   Remove
                 </button>
               </div>
             ))}
 
-            <div className="flex flex-col sm:flex-row justify-between items-center bg-white/10 p-4 rounded-xl">
-              <p className="text-xl font-bold mb-2 sm:mb-0">Total: ${total.toFixed(2)}</p>
-              <div className="flex flex-col sm:flex-row gap-2">
+            <div className="bg-white/10 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between">
+              <p className="text-2xl font-bold text-brand-orange mb-4 sm:mb-0">
+                Total: ${total.toFixed(2)}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={clearCart}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded transition font-medium"
                 >
                   Clear Cart
                 </button>
                 <Link
                   to="/checkout"
-                  className="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded transition text-center"
+                  className="bg-brand-accent hover:bg-teal-500 text-white px-6 py-2 rounded transition font-medium text-center"
                 >
                   Proceed to Checkout
                 </Link>
