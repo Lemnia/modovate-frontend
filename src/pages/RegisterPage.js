@@ -1,56 +1,50 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (!username || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
-      return;
+      return setError('Please fill out all fields.');
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
+      return setError('Passwords do not match.');
     }
 
     try {
-      const csrfToken = getCookie('XSRF-TOKEN');
-
-      const response = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
+      const res = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'X-XSRF-TOKEN': csrfToken }),
+          'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
         },
+        credentials: 'include',
         body: JSON.stringify({ username, email, password }),
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Registration failed');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Registration failed.');
       }
 
       navigate('/login');
     } catch (err) {
-      setError(err.message || 'Something went wrong. Try again.');
+      setError(err.message);
     }
-  };
-
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return '';
   };
 
   return (
@@ -58,7 +52,7 @@ const RegisterPage = () => {
       <div className="w-full max-w-md bg-[#111418] rounded-lg shadow-lg p-8 border border-brand-orange">
         <h2 className="text-3xl font-extrabold text-brand-accent text-center mb-6">Register</h2>
         {error && <div className="bg-red-600 text-white px-4 py-2 mb-4 rounded text-sm">{error}</div>}
-        <form onSubmit={handleRegister} className="space-y-5">
+        <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="text"
             placeholder="Username"

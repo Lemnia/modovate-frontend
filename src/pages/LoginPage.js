@@ -2,52 +2,47 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      setError('Please enter both email and password.');
-      return;
+      return setError('Please enter both email and password.');
     }
 
     try {
-      const csrfToken = getCookie('XSRF-TOKEN');
-
-      const response = await fetch('https://modovate-backend.onrender.com/api/auth/login', {
+      const res = await fetch('https://modovate-backend.onrender.com/api/auth/login', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'X-XSRF-TOKEN': csrfToken }),
+          'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Login failed');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Login failed.');
       }
 
-      const data = await response.json();
-      setUser(data.user); // save user context if needed
+      const user = await res.json();
+      setUser(user);
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Something went wrong. Try again.');
+      setError(err.message);
     }
-  };
-
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return '';
   };
 
   return (
