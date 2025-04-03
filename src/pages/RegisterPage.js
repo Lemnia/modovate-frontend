@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -12,7 +11,6 @@ const RegisterPage = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!username || !email || !password || !confirmPassword) {
       setError('Please fill in all fields.');
@@ -25,20 +23,34 @@ const RegisterPage = () => {
     }
 
     try {
-      const response = await axios.post('https://modovate-backend.onrender.com/api/auth/register', {
-        username,
-        email,
-        password,
-      }, {
-        withCredentials: true,
+      const csrfToken = getCookie('XSRF-TOKEN');
+
+      const response = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'X-XSRF-TOKEN': csrfToken }),
+        },
+        body: JSON.stringify({ username, email, password }),
       });
 
-      if (response.status === 201) {
-        navigate('/login');
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Registration failed');
       }
+
+      navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed.');
+      setError(err.message || 'Something went wrong. Try again.');
     }
+  };
+
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
   };
 
   return (
