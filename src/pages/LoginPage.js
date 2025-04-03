@@ -1,104 +1,72 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-    setSuccess('');
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setError('');
 
-    const { email, password } = formData;
-
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email.');
-      setLoading(false);
-      return;
-    }
-
-    if (!password || password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      setLoading(false);
+    if (!email || !password) {
+      setError('Please enter both email and password.');
       return;
     }
 
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/api/auth/status`, {
-        method: 'GET',
-        credentials: 'include'
-      });
-
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      setSuccess(data.message || 'Login successful');
-      login();
-      setTimeout(() => navigate('/account'), 1000);
+      await login(email, password);
+      navigate('/');
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-
-      {error && <p className="error-msg">{error}</p>}
-      {success && <p className="success-msg">{success}</p>}
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center px-4 py-20">
+      <div className="w-full max-w-md bg-[#111418] rounded-lg shadow-lg p-8 border border-brand-orange">
+        <h2 className="text-3xl font-extrabold text-brand-accent text-center mb-6">Login</h2>
+        {error && (
+          <div className="bg-red-600 text-white px-4 py-2 mb-4 rounded text-sm">{error}</div>
+        )}
+        <form onSubmit={handleLogin} className="space-y-5">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
+          />
+          <button
+            type="submit"
+            className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded transition"
+          >
+            Login
+          </button>
+        </form>
+        <div className="text-sm text-center text-gray-400 mt-6">
+          <Link to="/forgot-password" className="text-brand-accent hover:underline">
+            Forgot your password?
+          </Link>
+        </div>
+        <div className="text-sm text-center text-gray-400 mt-2">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="text-brand-accent hover:underline">
+            Register here
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

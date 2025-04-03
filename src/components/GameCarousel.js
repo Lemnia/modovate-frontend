@@ -72,8 +72,10 @@ const GameCarousel = () => {
 
   return (
     <div className="relative text-center py-20 overflow-hidden">
+      {/* Neon background blur */}
       <div className="absolute top-[52%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[860px] h-[160px] rounded-full bg-cyan-500 opacity-[0.07] blur-[70px] z-0 pointer-events-none" />
 
+      {/* Carousel with arrows */}
       <div className="flex items-center justify-center relative z-10">
         <img
           src="/assets/icons/arrow-left.png"
