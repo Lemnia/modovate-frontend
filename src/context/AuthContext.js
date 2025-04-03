@@ -1,45 +1,53 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/auth/status', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await res.json();
-        setIsLoggedIn(data.isLoggedIn);
-      } catch (err) {
-        setIsLoggedIn(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  const logout = async () => {
+  const login = async (email, password) => {
     try {
-      await fetch('/api/auth/logout', {
+      const res = await fetch('https://modovate-backend.onrender.com/api/auth/login', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ email, password })
       });
+
+      if (!res.ok) throw new Error('Login failed');
+      setIsAuthenticated(true);
+      return true;
     } catch (err) {
-      console.error('Logout failed');
-    } finally {
-      setIsLoggedIn(false);
+      return false;
     }
   };
 
+  const register = async (email, password) => {
+    try {
+      const res = await fetch('https://modovate-backend.onrender.com/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!res.ok) throw new Error('Registration failed');
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const logout = async () => {
+    await fetch('https://modovate-backend.onrender.com/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    });
+    setIsAuthenticated(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, loading, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
