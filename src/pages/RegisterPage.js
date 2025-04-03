@@ -81,7 +81,10 @@ const RegisterPage = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
           />
-          <button type="submit" className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded">
+          <button
+            type="submit"
+            className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded"
+          >
             Register
           </button>
         </form>
