@@ -1,4 +1,3 @@
-// src/pages/RegisterPage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -16,7 +15,7 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch the CSRF token via the proxy (relative URL)
+    // Use a relative URL so the Netlify redirect sends the request to your backend.
     fetch('/api/auth/csrf-token', {
       credentials: 'include'
     });
