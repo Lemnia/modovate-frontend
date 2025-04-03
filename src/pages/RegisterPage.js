@@ -37,11 +37,16 @@ const RegisterPage = () => {
         body: JSON.stringify({ username, email, password }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Registration failed.');
-      }
-
+	if (!res.ok) {
+	  const text = await res.text();
+	  try {
+		const data = JSON.parse(text);
+		throw new Error(data.message || 'Registration failed.');
+	  } catch (err) {
+		throw new Error('Registration failed. ' + text);
+	  }
+	}
+	
       navigate('/login');
     } catch (err) {
       setError(err.message);
