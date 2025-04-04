@@ -15,8 +15,8 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Ensure the request is made via the relative URL so that Netlify rewrites it
-    fetch('/api/auth/csrf-token', {
+    // Use the /api2 endpoint so that Netlify's rewrite rule kicks in
+    fetch('/api2/auth/csrf-token?nocache=' + Date.now(), {
       credentials: 'include'
     });
   }, []);
@@ -34,9 +34,10 @@ const RegisterPage = () => {
 
     try {
       const csrfToken = getCookie('XSRF-TOKEN');
-      if (!csrfToken) throw new Error('CSRF token not found. Please refresh the page and try again.');
+      if (!csrfToken)
+        throw new Error('CSRF token not found. Please refresh the page and try again.');
 
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api2/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

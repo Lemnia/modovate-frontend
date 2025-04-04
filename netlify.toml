@@ -6,12 +6,12 @@
   CI = "false"
 
 [[headers]]
-  for = "/api/*"
+  for = "/api2/*"
   [headers.values]
     Cache-Control = "no-store"
 
 [[redirects]]
-  from = "/api/*"
+  from = "/api2/*"
   to = "https://modovate-backend.onrender.com/api/:splat"
   status = 200
   force = true
