@@ -11,6 +11,12 @@
     Cache-Control = "no-store"
 
 [[redirects]]
+  from = "/test-redirect"
+  to = "https://www.google.com"
+  status = 302
+  force = true
+
+[[redirects]]
   from = "/api-proxy/*"
   to = "https://modovate-backend.onrender.com/api/:splat"
   status = 200
