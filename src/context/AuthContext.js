@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkLoginStatus = async () => {
     try {
-      const res = await fetch('/api2/auth/status', {
+      const res = await fetch('/api-proxy/auth/status', {
         credentials: 'include',
       });
       const data = await res.json();
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   const fetchCsrfToken = async () => {
     try {
       // Append a cache-busting query string to force a fresh response
-      await fetch('/api2/auth/csrf-token?nocache=' + Date.now(), {
+      await fetch('/api-proxy/auth/csrf-token?nocache=' + Date.now(), {
         credentials: 'include',
       });
     } catch (err) {
