@@ -15,7 +15,6 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Use the /api-proxy endpoint so that Netlify's rewrite rule is applied
     fetch('/api-proxy/auth/csrf-token?nocache=' + Date.now(), {
       credentials: 'include'
     });
@@ -36,6 +35,9 @@ const RegisterPage = () => {
       const csrfToken = getCookie('XSRF-TOKEN');
       if (!csrfToken)
         throw new Error('CSRF token not found. Please refresh the page and try again.');
+
+      // 📣 OVDE SAM DODALA console.log:
+      console.log("Trying to register with:", { username, email, password });
 
       const res = await fetch('/api-proxy/auth/register', {
         method: 'POST',
