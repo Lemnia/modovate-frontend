@@ -10,18 +10,21 @@
   [headers.values]
     Cache-Control = "no-store"
 
-[[redirects]]
-  from = "/test-redirect"
-  to = "https://www.google.com"
-  status = 302
-  force = true
-
+# Proxy API zahteva
 [[redirects]]
   from = "/api-proxy/*"
   to = "https://modovate-backend.onrender.com/api/:splat"
   status = 200
   force = true
 
+# Non-www redirect na www
+[[redirects]]
+  from = "https://modovatestudio.com/*"
+  to = "https://www.modovatestudio.com/:splat"
+  status = 301
+  force = true
+
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
