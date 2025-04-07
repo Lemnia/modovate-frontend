@@ -16,6 +16,9 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import AccountPage from './pages/AccountPage';
 import ConfirmSuccessPage from './pages/ConfirmSuccessPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import AlreadyVerifiedPage from './pages/AlreadyVerifiedPage';
+
 
 function App() {
   return (
