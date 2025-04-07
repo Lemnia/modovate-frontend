@@ -32,6 +32,8 @@ function App() {
           <Route path="about" element={<AboutPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
+		  <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+		  <Route path="/already-verified" element={<AlreadyVerifiedPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="reset-password" element={<ResetPasswordPage />} />
           <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
