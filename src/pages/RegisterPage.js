@@ -15,8 +15,11 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Fetch CSRF token from backend
     fetch('/api-proxy/auth/csrf-token?nocache=' + Date.now(), {
       credentials: 'include'
+    }).catch((err) => {
+      console.error('Failed to fetch CSRF token:', err);
     });
   }, []);
 
@@ -33,11 +36,11 @@ const RegisterPage = () => {
 
     try {
       const csrfToken = getCookie('XSRF-TOKEN');
-      if (!csrfToken)
+      if (!csrfToken) {
         throw new Error('CSRF token not found. Please refresh the page and try again.');
+      }
 
-      // 📣 OVDE SAM DODALA console.log:
-      console.log("Trying to register with:", { username, email, password });
+      console.log("Sending registration data:", { username, email, password });
 
       const res = await fetch('/api-proxy/auth/register', {
         method: 'POST',
@@ -61,6 +64,7 @@ const RegisterPage = () => {
 
       navigate('/login');
     } catch (err) {
+      console.error('Registration error:', err);
       setError(err.message);
     }
   };
