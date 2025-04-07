@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -7,8 +7,7 @@ const ResetPasswordPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const token = new URLSearchParams(location.search).get('token');
+  const { token } = useParams(); // uzima token iz URL-a /reset-password/:token
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,13 +16,13 @@ const ResetPasswordPage = () => {
     setError('');
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, {
+      const res = await fetch(`/api-proxy/auth/reset-password/${token}`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token, password })
+        body: JSON.stringify({ password })
       });
 
       const data = await res.json();

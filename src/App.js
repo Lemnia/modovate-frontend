@@ -19,7 +19,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import AlreadyVerifiedPage from './pages/AlreadyVerifiedPage';
 
-
 function App() {
   return (
     <>
@@ -35,10 +34,10 @@ function App() {
           <Route path="about" element={<AboutPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
-		  <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
-		  <Route path="/already-verified" element={<AlreadyVerifiedPage />} />
+          <Route path="verify-email/:token" element={<VerifyEmailPage />} />
+          <Route path="already-verified" element={<AlreadyVerifiedPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route path="reset-password/:token" element={<ResetPasswordPage />} /> {/* <-- ispravljeno ovde */}
           <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
           <Route path="confirm-success" element={<ProtectedRoute><ConfirmSuccessPage /></ProtectedRoute>} />
         </Route>

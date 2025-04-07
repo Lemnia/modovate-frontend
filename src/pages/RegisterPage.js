@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/RegisterPage.js
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -13,106 +9,116 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    // Fetch CSRF token from backend
-    fetch('/api-proxy/auth/csrf-token?nocache=' + Date.now(), {
-      credentials: 'include'
-    }).catch((err) => {
-      console.error('Failed to fetch CSRF token:', err);
-    });
-  }, []);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    if (!username || !email || !password || !confirmPassword) {
-      return setError('Please fill out all fields.');
-    }
+    setError('');
+    setMessage('');
 
     if (password !== confirmPassword) {
-      return setError('Passwords do not match.');
+      setError('Passwords do not match');
+      return;
     }
 
+    setLoading(true);
     try {
-      const csrfToken = getCookie('XSRF-TOKEN');
-      if (!csrfToken) {
-        throw new Error('CSRF token not found. Please refresh the page and try again.');
-      }
-
-      console.log("Sending registration data:", { username, email, password });
-
       const res = await fetch('/api-proxy/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': csrfToken,
         },
         credentials: 'include',
         body: JSON.stringify({ username, email, password }),
       });
 
-      if (!res.ok) {
-        const contentType = res.headers.get('Content-Type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await res.json();
-          throw new Error(data.message || 'Registration failed.');
-        } else {
-          throw new Error('Registration failed. Server returned invalid response.');
-        }
+      const data = await res.json();
+      if (res.ok) {
+        setMessage('Registration successful! Please check your email to verify your account.');
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+      } else {
+        setError(data.message || 'Registration failed');
       }
-
-      navigate('/login');
     } catch (err) {
-      console.error('Registration error:', err);
-      setError(err.message);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center px-4 py-20">
-      <div className="w-full max-w-md bg-[#111418] rounded-lg shadow-lg p-8 border border-brand-orange">
-        <h2 className="text-3xl font-extrabold text-brand-accent text-center mb-6">Register</h2>
-        {error && <div className="bg-red-600 text-white px-4 py-2 mb-4 rounded text-sm">{error}</div>}
-        <form onSubmit={handleRegister} className="space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-gray-900 px-4">
+      <div className="max-w-md w-full bg-[#111418] p-8 rounded-lg shadow-lg border border-brand-orange">
+        <h2 className="text-3xl font-bold text-brand-accent mb-6 text-center">Create an Account</h2>
+
+        {error && (
+          <div className="bg-red-600 text-white text-sm rounded-md px-4 py-2 mb-4 text-center">
+            {error}
+          </div>
+        )}
+        {message && (
+          <div className="bg-green-700 text-white text-sm rounded-md px-4 py-2 mb-4 text-center">
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleRegister}>
           <input
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
+            className="w-full mb-4 px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-brand-orange"
+            required
           />
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
+            className="w-full mb-4 px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-brand-orange"
+            required
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
+            className="w-full mb-4 px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-brand-orange"
+            required
           />
           <input
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
+            className="w-full mb-6 px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-brand-orange"
+            required
           />
-          <button type="submit" className="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-2 rounded">
-            Register
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-2 px-4 rounded text-white font-semibold transition duration-300 ${
+              loading
+                ? 'bg-gray-600 cursor-not-allowed'
+                : 'bg-brand-orange hover:bg-orange-600'
+            }`}
+          >
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-        <div className="text-sm text-center text-gray-400 mt-6">
+
+        <p className="mt-6 text-sm text-gray-400 text-center">
           Already have an account?{' '}
-          <Link to="/login" className="text-brand-accent hover:underline">
-            Login here
+          <Link to="/login" className="text-brand-orange hover:underline">
+            Log in
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );

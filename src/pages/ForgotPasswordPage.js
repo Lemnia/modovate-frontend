@@ -14,12 +14,7 @@ const ForgotPasswordPage = () => {
     setError('');
 
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/api/auth/status`, {
-        method: 'GET',
-        credentials: 'include'
-      });
-
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/forgot-password`, {
+      const res = await fetch(`/api-proxy/auth/forgot-password`, {
         method: 'POST',
         credentials: 'include',
         headers: {
