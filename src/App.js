@@ -40,7 +40,6 @@ function App() {
           <Route path="reset-password" element={<ResetPasswordPage />} />
           <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
           <Route path="confirm-success" element={<ProtectedRoute><ConfirmSuccessPage /></ProtectedRoute>} />
-        </Route>
       </Routes>
     </>
   );
