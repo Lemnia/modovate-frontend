@@ -30,7 +30,7 @@ const RegisterPage = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password }), // TAČNO ovako backend očekuje
       });
 
       const data = await res.json();
