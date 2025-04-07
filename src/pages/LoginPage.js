@@ -1,107 +1,81 @@
-// src/pages/LoginPage.js
-import React, { useState } from 'react';
+// pages/LoginPage.js
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
-}
+import axios from 'axios';
+import LoadingSpinner from '../components/LoadingSpinner';
+import useCsrfToken from '../hooks/useCsrfToken';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  useCsrfToken();
 
-    if (!email || !password) {
-      setError('Please enter both email and password.');
-      setLoading(false);
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
-      const res = await fetch('https://modovate-backend.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Login failed.');
-      }
-
-      // Pošto backend vraća samo message, mi ručno postavljamo user kao "logged in"
-      setUser({ email });
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    } finally {
+      await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
+      await login();
+      navigate('/account');
+    } catch (error) {
       setLoading(false);
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Login failed.');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center px-4 py-20">
-      <div className="w-full max-w-md bg-[#111418] rounded-lg shadow-lg p-8 border border-brand-orange">
-        <h2 className="text-3xl font-extrabold text-brand-accent text-center mb-6">Login</h2>
-
-        {error && (
-          <div className="bg-red-600 text-white px-4 py-2 mb-4 rounded text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-5">
+    <div className="min-h-screen flex items-center justify-center bg-brand-dark px-4">
+      <div className="max-w-md w-full bg-brand-black p-8 rounded-lg shadow-md border border-brand-orange">
+        <h2 className="text-3xl font-bold text-center text-brand-light mb-6">Welcome Back</h2>
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
-            disabled={loading}
+            required
+            className="w-full px-4 py-2 rounded bg-brand-dark text-white focus:outline-none focus:ring-2 focus:ring-brand-accent"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:ring-2 focus:ring-brand-accent"
-            disabled={loading}
+            required
+            className="w-full px-4 py-2 rounded bg-brand-dark text-white focus:outline-none focus:ring-2 focus:ring-brand-accent"
           />
           <button
             type="submit"
             disabled={loading}
-            className={`w-full ${loading ? 'bg-gray-600' : 'bg-brand-orange hover:bg-orange-600'} text-white font-semibold py-2 rounded transition duration-300`}
+            className="w-full bg-brand-orange text-white py-2 rounded hover:bg-orange-600 transition-colors"
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? <LoadingSpinner /> : 'Login'}
           </button>
         </form>
-
-        <div className="text-sm text-center text-gray-400 mt-6">
-          <Link to="/forgot-password" className="text-brand-accent hover:underline">
-            Forgot your password?
+        <p className="text-center text-sm text-gray-400 mt-4">
+          <Link to="/forgot-password" className="text-brand-light hover:underline">
+            Forgot Password?
           </Link>
-        </div>
-        <div className="text-sm text-center text-gray-400 mt-2">
+        </p>
+        <p className="text-center text-sm text-gray-400 mt-2">
           Don't have an account?{' '}
-          <Link to="/register" className="text-brand-accent hover:underline">
-            Register here
+          <Link to="/register" className="text-brand-light hover:underline">
+            Register
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );

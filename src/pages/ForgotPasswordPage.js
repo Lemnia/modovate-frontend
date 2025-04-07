@@ -1,67 +1,68 @@
-import React, { useState } from 'react';
+// pages/ForgotPasswordPage.js
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import LoadingSpinner from '../components/LoadingSpinner';
+import useCsrfToken from '../hooks/useCsrfToken';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useCsrfToken();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
     setError('');
+    setMessage('');
 
     try {
-      const res = await fetch(`/api-proxy/auth/forgot-password`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to send reset email');
-      }
-
-      setMessage(data.message || 'Reset link sent. Check your email.');
-    } catch (err) {
-      setError(err.message);
-    } finally {
+      const response = await axios.post('/api/auth/forgot-password', { email }, { withCredentials: true });
+      setMessage(response.data.message);
       setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Password reset failed.');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-14 text-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white/5 p-8 rounded-xl shadow space-y-4">
-        <h1 className="text-2xl font-bold mb-4">Forgot Password</h1>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full p-2 bg-black bg-opacity-20 rounded"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full p-2 bg-brand-orange rounded hover:bg-opacity-80 transition"
-        >
-          {loading ? 'Sending...' : 'Send Reset Link'}
-        </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {message && <p className="text-green-400 text-sm">{message}</p>}
-        <div className="text-sm mt-2">
-          <Link to="/login" className="text-brand-light hover:underline">Back to Login</Link>
-        </div>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-brand-dark px-4">
+      <div className="max-w-md w-full bg-brand-black p-8 rounded-lg shadow-md border border-brand-orange">
+        <h2 className="text-3xl font-bold text-center text-brand-light mb-6">Forgot Password</h2>
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+        {message && <div className="text-green-500 text-center mb-4">{message}</div>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-2 rounded bg-brand-dark text-white focus:outline-none focus:ring-2 focus:ring-brand-accent"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brand-orange text-white py-2 rounded hover:bg-orange-600 transition-colors"
+          >
+            {loading ? <LoadingSpinner /> : 'Send Reset Link'}
+          </button>
+        </form>
+        <p className="text-center text-sm text-gray-400 mt-4">
+          Remembered your password?{' '}
+          <Link to="/login" className="text-brand-light hover:underline">
+            Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

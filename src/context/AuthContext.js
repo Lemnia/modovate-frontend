@@ -1,43 +1,31 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+// src/context/AuthContext.js
+import { createContext, useContext, useEffect, useState } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const checkLoginStatus = async () => {
+  const checkAuthStatus = async () => {
     try {
-      const res = await fetch('/api-proxy/auth/status', {
-        credentials: 'include',
-      });
-      const data = await res.json();
-      setIsAuthenticated(data.isLoggedIn);
-    } catch (err) {
-      setIsAuthenticated(false);
-    }
-  };
-
-  const fetchCsrfToken = async () => {
-    try {
-      // Append a cache-busting query string to force a fresh response
-      await fetch('/api-proxy/auth/csrf-token?nocache=' + Date.now(), {
-        credentials: 'include',
-      });
-    } catch (err) {
-      console.error('Failed to fetch CSRF token:', err);
+      const res = await axios.get('/api-proxy/auth/status', { withCredentials: true });
+      setIsLoggedIn(res.data.isLoggedIn);
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setIsLoggedIn(false);
+    } finally {
+      setCheckingAuth(false);
     }
   };
 
   useEffect(() => {
-    checkLoginStatus();
-    fetchCsrfToken();
+    checkAuthStatus();
   }, []);
 
-  const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
-
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, checkingAuth }}>
       {children}
     </AuthContext.Provider>
   );
