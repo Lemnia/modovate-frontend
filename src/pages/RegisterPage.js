@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -16,13 +16,22 @@ const RegisterPage = () => {
     setError('');
     setSuccessMessage('');
 
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     try {
       const res = await fetch('/api-proxy/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
@@ -31,9 +40,8 @@ const RegisterPage = () => {
         setError(data.message || 'Registration failed.');
       } else {
         setSuccessMessage('Registration successful! Please check your email to verify your account.');
-        setFormData({ username: '', email: '', password: '' });
+        setFormData({ username: '', email: '', password: '', confirmPassword: '' });
 
-        // Ako želiš automatsko prebacivanje posle 5 sekundi:
         setTimeout(() => {
           navigate('/login');
         }, 5000);
@@ -72,6 +80,15 @@ const RegisterPage = () => {
             name="password"
             placeholder="Password (min 6 characters)"
             value={formData.password}
+            onChange={handleChange}
+            className="w-full p-3 rounded bg-gray-800 text-white placeholder-gray-400"
+            required
+          />
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
             onChange={handleChange}
             className="w-full p-3 rounded bg-gray-800 text-white placeholder-gray-400"
             required
